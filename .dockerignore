@@ -13,3 +13,5 @@ backend/dist
 frontend/dist
 database/
 *.db
+demo/
+docs/

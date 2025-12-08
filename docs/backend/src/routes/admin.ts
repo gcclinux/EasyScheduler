@@ -60,7 +60,7 @@ router.get('/:aid', authenticateAdmin, async (req, res) => {
 });
 
 // POST /api/admins - create new admin
-// Allow first admin creation without auth, subsequent admins require auth
+// Allow first admin creation without auth, subsequent admins require auth + write access
 router.post('/', async (req, res) => {
   try {
     const { aName, aSurname, email, login, password, role } = req.body;
@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
     const existingAdmins = await DatabaseQueries.getAdmins();
     const isFirstAdmin = existingAdmins.length === 0;
 
-    // If not the first admin, require authentication
+    // If not the first admin, require authentication and write access
     if (!isFirstAdmin) {
       const token = (req as any).headers.authorization?.replace('Bearer ', '');
       if (!token) {
@@ -81,8 +81,16 @@ router.post('/', async (req, res) => {
       }
 
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production') as { aid: number; login: string };
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production') as { aid: number; login: string; role?: string };
         (req as any).admin = decoded;
+        
+        // Check for readonly role
+        if (decoded.role === 'readonly') {
+          return res.status(403).json({
+            success: false,
+            error: 'Read-only access: modification not allowed'
+          });
+        }
       } catch (error) {
         return res.status(401).json({
           success: false,

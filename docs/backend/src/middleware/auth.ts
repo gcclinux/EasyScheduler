@@ -22,7 +22,7 @@ export const authenticateAdmin = (req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { aid: number; login: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { aid: number; login: string; role?: 'admin' | 'readonly' };
     req.admin = decoded;
     next();
   } catch (error) {
