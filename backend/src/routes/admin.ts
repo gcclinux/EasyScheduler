@@ -29,6 +29,7 @@ router.get('/', authenticateAdmin, async (req, res) => {
       aSurname: a.aSurname,
       email: a.email,
       login: a.login,
+      role: a.role,
       passwordLastChanged: a.passwordLastChanged,
       createdAt: a.createdAt,
       updatedAt: a.updatedAt
@@ -50,7 +51,7 @@ router.get('/:aid', authenticateAdmin, async (req, res) => {
     const admin = await DatabaseQueries.getAdminById(aid);
     if (!admin) return res.status(404).json({ success: false, error: 'Admin not found' });
 
-    const safe = { aid: admin.aid, aName: admin.aName, aSurname: admin.aSurname, email: admin.email, login: admin.login, passwordLastChanged: admin.passwordLastChanged, createdAt: admin.createdAt, updatedAt: admin.updatedAt };
+    const safe = { aid: admin.aid, aName: admin.aName, aSurname: admin.aSurname, email: admin.email, login: admin.login, role: admin.role, passwordLastChanged: admin.passwordLastChanged, createdAt: admin.createdAt, updatedAt: admin.updatedAt };
     res.json({ success: true, data: safe });
   } catch (error) {
     console.error('Error fetching admin by id:', error);
@@ -62,7 +63,7 @@ router.get('/:aid', authenticateAdmin, async (req, res) => {
 // Allow first admin creation without auth, subsequent admins require auth
 router.post('/', async (req, res) => {
   try {
-    const { aName, aSurname, email, login, password } = req.body;
+    const { aName, aSurname, email, login, password, role } = req.body;
     if (!aName || !aSurname || !email || !login || !password) return res.status(400).json({ success: false, error: 'Missing required fields' });
 
     // Check if this is the first admin
@@ -98,7 +99,7 @@ router.post('/', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
-    const aid = await DatabaseQueries.createAdmin({ aName, aSurname, email, login, password: hashed });
+    const aid = await DatabaseQueries.createAdmin({ aName, aSurname, email, login, password: hashed, role: role || 'admin' });
 
     res.status(201).json({ success: true, data: { aid }, message: 'Admin created' });
   } catch (error) {
@@ -108,7 +109,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/admins/:aid - update admin (partial) - PROTECTED
-router.put('/:aid', authenticateAdmin, async (req, res) => {
+router.put('/:aid', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const aid = parseInt(req.params.aid, 10);
     if (isNaN(aid)) return res.status(400).json({ success: false, error: 'Invalid admin id' });
@@ -141,7 +142,7 @@ router.put('/:aid', authenticateAdmin, async (req, res) => {
 });
 
 // PUT /api/admins/:aid/password - change admin password - PROTECTED
-router.put('/:aid/password', authenticateAdmin, async (req, res) => {
+router.put('/:aid/password', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const aid = parseInt(req.params.aid, 10);
     if (isNaN(aid)) return res.status(400).json({ success: false, error: 'Invalid admin id' });
@@ -190,7 +191,7 @@ router.post('/login', async (req, res) => {
     if (!isValid) return res.status(401).json({ success: false, error: 'Invalid credentials' });
 
     // Generate JWT token
-  const token = generateToken(admin.aid!, admin.login);
+  const token = generateToken(admin.aid!, admin.login, admin.role || 'admin');
 
     // Return safe admin data (no password) + token
     const safeAdmin = {
@@ -199,6 +200,7 @@ router.post('/login', async (req, res) => {
       aSurname: admin.aSurname,
       email: admin.email,
       login: admin.login,
+      role: admin.role,
       passwordLastChanged: admin.passwordLastChanged,
       createdAt: admin.createdAt,
       updatedAt: admin.updatedAt
@@ -217,7 +219,7 @@ router.post('/login', async (req, res) => {
 });
 
 // DELETE /api/admins/:aid - delete admin - PROTECTED
-router.delete('/:aid', authenticateAdmin, async (req, res) => {
+router.delete('/:aid', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const aid = parseInt(req.params.aid, 10);
     if (isNaN(aid)) return res.status(400).json({ success: false, error: 'Invalid admin id' });

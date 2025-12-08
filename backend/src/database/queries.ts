@@ -298,11 +298,11 @@ export class DatabaseQueries {
   static createAdmin(admin: Omit<Admin, 'aid'>): Promise<number> {
     return new Promise((resolve, reject) => {
       const stmt = db.prepare(`
-        INSERT INTO admin (aName, aSurname, email, login, password, passwordLastChanged)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO admin (aName, aSurname, email, login, password, role, passwordLastChanged)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       `);
 
-      stmt.run([admin.aName, admin.aSurname, admin.email, admin.login, admin.password], function(err) {
+      stmt.run([admin.aName, admin.aSurname, admin.email, admin.login, admin.password, admin.role || 'admin'], function(err) {
         if (err) reject(err);
         else resolve(this.lastID);
       });
@@ -314,7 +314,7 @@ export class DatabaseQueries {
   static getAdmins(): Promise<Admin[]> {
     return new Promise((resolve, reject) => {
       // select only safe fields (exclude password)
-      db.all(`SELECT aid, aName, aSurname, email, login, passwordLastChanged, createdAt, updatedAt FROM admin ORDER BY createdAt DESC`, (err, rows) => {
+      db.all(`SELECT aid, aName, aSurname, email, login, role, passwordLastChanged, createdAt, updatedAt FROM admin ORDER BY createdAt DESC`, (err, rows) => {
         if (err) reject(err);
         else resolve(rows as Admin[]);
       });
@@ -324,7 +324,7 @@ export class DatabaseQueries {
   static getAdminById(aid: number): Promise<Admin | null> {
     return new Promise((resolve, reject) => {
       // select only safe fields (exclude password)
-      db.get(`SELECT aid, aName, aSurname, email, login, passwordLastChanged, createdAt, updatedAt FROM admin WHERE aid = ?`, [aid], (err, row) => {
+      db.get(`SELECT aid, aName, aSurname, email, login, role, passwordLastChanged, createdAt, updatedAt FROM admin WHERE aid = ?`, [aid], (err, row) => {
         if (err) reject(err);
         else resolve(row as Admin || null);
       });

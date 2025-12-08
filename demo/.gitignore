@@ -1,0 +1,7 @@
+node_modules/
+dist/
+backend/database/*.db
+backend/database/*.db-journal
+.env.local
+.DS_Store
+*.log

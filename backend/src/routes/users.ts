@@ -1,7 +1,7 @@
 import express from 'express';
 import { DatabaseQueries } from '../database';
 import { ApiResponse } from '../types';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, requireWriteAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -155,7 +155,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/users/:id - Update user details - PROTECTED
-router.put('/:id', authenticateAdmin, async (req, res) => {
+router.put('/:id', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: 'Invalid id' });
@@ -176,7 +176,7 @@ router.put('/:id', authenticateAdmin, async (req, res) => {
 });
 
 // DELETE /api/users/:id - remove a user - PROTECTED
-router.delete('/:id', authenticateAdmin, async (req, res) => {
+router.delete('/:id', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: 'Invalid id' });

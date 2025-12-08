@@ -228,6 +228,22 @@ export const initializeDatabase = (): Promise<void> => {
               }
             });
           }
+          if (!adminCols.includes('role')) {
+            db.run(`ALTER TABLE admin ADD COLUMN role TEXT DEFAULT 'admin'`, (alterErr) => {
+              if (alterErr) {
+                console.warn('Could not add role column to admin table:', alterErr.message);
+              } else {
+                console.log('✅ Added role column to admin table');
+                db.run(`UPDATE admin SET role = 'admin' WHERE role IS NULL`, (updateErr) => {
+                  if (updateErr) {
+                    console.warn('Could not set default role values:', updateErr.message);
+                  } else {
+                    console.log('✅ Set default role values for existing admins');
+                  }
+                });
+              }
+            });
+          }
         }
       });
 

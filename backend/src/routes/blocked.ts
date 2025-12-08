@@ -1,12 +1,12 @@
 import express from 'express';
 import { DatabaseQueries } from '../database';
 import { ApiResponse } from '../types';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, requireWriteAccess } from '../middleware/auth';
 
 const router = express.Router();
 
 // POST /api/blocked - Block a user/IP/email - PROTECTED
-router.post('/', authenticateAdmin, async (req, res) => {
+router.post('/', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const { userId, ipAddress, email, reason } = req.body || {};
 
@@ -87,7 +87,7 @@ router.get('/', authenticateAdmin, async (req, res) => {
 });
 
 // DELETE /api/blocked/:id - remove a blocked entry - PROTECTED
-router.delete('/:id', authenticateAdmin, async (req, res) => {
+router.delete('/:id', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: 'Invalid id' });

@@ -1,0 +1,82 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { API } from '../config/api';
+import './Prices.css';
+
+export default function Prices() {
+  const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAppointmentTypes();
+  }, []);
+
+  const fetchAppointmentTypes = async () => {
+    try {
+      const response = await fetch(`${API}/appointment-types?language=en`);
+      const data = await response.json();
+      if (data.success) {
+        const types = data.data.types.map(type => ({
+          title: type.appName,
+          duration: `${type.appDuration} minutes`,
+          price: type.appPrice ? `${type.appPrice} ${type.appCurrency}` : 'Contact for pricing',
+          description: type.appDescription || '',
+          features: type.appFeatures ? type.appFeatures.split('\n').filter(f => f.trim()) : [],
+          appTag: type.appTag
+        }));
+        setServices(types);
+      }
+    } catch (error) {
+      console.error('Error fetching appointment types:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="prices-page">
+        <div className="container" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading services...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="prices-page">
+      <div className="prices-header">
+        <h1>Our Services & Pricing</h1>
+        <p>Choose the service that best fits your needs. All sessions are by appointment only.</p>
+      </div>
+      
+      <div className="container">
+        <div className="prices-grid">
+          {services.map((service, index) => (
+            <div key={index} className="price-card">
+              <div className="price-card-header">
+                <h3>{service.title}</h3>
+                <span className="duration">{service.duration}</span>
+              </div>
+              <div className="price-amount">{service.price}</div>
+              <p className="price-description">{service.description}</p>
+              <ul className="price-features">
+                {service.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+              <button className="book-button" onClick={() => navigate(`/easyscheduler${service.appTag ? `?appTag=${service.appTag}` : ''}`)}>Book Now</button>
+            </div>
+          ))}
+        </div>
+        
+        <div className="pricing-note">
+          <h3>Payment & Insurance</h3>
+          <p>We accept most major insurance plans. Please contact us to verify your coverage. Self-pay options and sliding scale fees available upon request.</p>
+        </div>
+      </div>
+
+    </div>
+  );
+}

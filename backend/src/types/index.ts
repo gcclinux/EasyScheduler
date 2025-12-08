@@ -41,6 +41,7 @@ export interface Admin {
   email?: string;
   login: string;
   password: string;
+  role?: 'admin' | 'readonly';
   passwordLastChanged?: string;
   createdAt?: string;
   updatedAt?: string;

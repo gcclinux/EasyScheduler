@@ -2,7 +2,7 @@ import express from 'express';
 import { DatabaseQueries } from '../database';
 import { ApiResponse } from '../types';
 import { getLicenseConfig, validateLicenseKey } from '../config/license.example';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, requireWriteAccess } from '../middleware/auth';
 import db from '../database/init';
 
 const router = express.Router();
@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 });
 
 // PUT /api/settings - Update settings - PROTECTED
-router.put('/', authenticateAdmin, async (req, res) => {
+router.put('/', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const updates = req.body;
     

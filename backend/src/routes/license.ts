@@ -1,6 +1,6 @@
 import express from 'express';
 import { generateLicenseKey, validateLicenseKey } from '../config/license.example';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, requireWriteAccess } from '../middleware/auth';
 import jwt from 'jsonwebtoken';
 import db from '../database/init';
 
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/license/activate - Activate premium license - PROTECTED
-router.post('/activate', authenticateAdmin, async (req, res) => {
+router.post('/activate', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const { name, email, licenseKey } = req.body;
     
@@ -132,7 +132,7 @@ router.post('/generate', authenticateAdmin, async (req, res) => {
 });
 
 // POST /api/license/deactivate - Deactivate license - PROTECTED
-router.post('/deactivate', authenticateAdmin, async (req, res) => {
+router.post('/deactivate', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     await updateDbLicense(false, '', '', '');
     res.json({ success: true, message: 'License deactivated' });

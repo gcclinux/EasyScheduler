@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseQueries } from '../database';
 import { CreateAppointmentRequest, ApiResponse } from '../types';
 import { EmailService } from '../services/emailService';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, requireWriteAccess } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -606,7 +606,7 @@ router.get('/cancel-by-token/:token', async (req, res) => {
 });
 
 // PUT /api/appointments/:id/confirm - Confirm appointment - PROTECTED
-router.put('/:id/confirm', authenticateAdmin, async (req, res) => {
+router.put('/:id/confirm', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const appointmentId = parseInt(req.params.id);
     
@@ -641,7 +641,7 @@ router.put('/:id/confirm', authenticateAdmin, async (req, res) => {
 });
 
 // PUT /api/appointments/:id/cancel - Cancel appointment - PROTECTED
-router.put('/:id/cancel', authenticateAdmin, async (req, res) => {
+router.put('/:id/cancel', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const appointmentId = parseInt(req.params.id);
     
@@ -684,7 +684,7 @@ router.put('/:id/cancel', authenticateAdmin, async (req, res) => {
 });
 
 // PUT /api/appointments/:id/block - Block appointment - PROTECTED
-router.put('/:id/block', authenticateAdmin, async (req, res) => {
+router.put('/:id/block', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const appointmentId = parseInt(req.params.id);
 
@@ -710,7 +710,7 @@ router.put('/:id/block', authenticateAdmin, async (req, res) => {
 });
 
 // POST /api/appointments/block-user - Block a user - PROTECTED
-router.post('/block-user', authenticateAdmin, async (req, res) => {
+router.post('/block-user', authenticateAdmin, requireWriteAccess, async (req, res) => {
   try {
     const { userId, email, reason } = req.body || {};
     if (!userId && !email) {
