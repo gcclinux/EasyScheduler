@@ -1,0 +1,53 @@
+# Stage 1: Build Frontend
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app/frontend
+COPY demo/frontend/package.json demo/frontend/package-lock.json ./
+RUN npm ci
+COPY demo/frontend/ ./
+ENV VITE_API_BASE_URL=""
+RUN npm run build -- --outDir dist
+
+# Stage 2: Build Backend
+FROM node:20-alpine AS backend-builder
+WORKDIR /app/backend
+COPY demo/backend/package.json demo/backend/package-lock.json ./
+RUN npm ci
+COPY demo/backend/ ./
+RUN if [ ! -f src/config/license.ts ]; then cp src/config/license.example.ts src/config/license.ts; fi
+RUN npm run build
+
+# Stage 3: Production Runtime
+FROM node:20-alpine
+WORKDIR /app
+
+# Install build dependencies for native modules (sqlite3)
+RUN apk add --no-cache python3 make g++
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=5001
+ENV FRONTEND_PATH=/app/frontend/dist
+ENV DB_PATH=/app/data/demo.db
+
+# Install production dependencies for backend
+COPY demo/backend/package.json demo/backend/package-lock.json ./
+RUN npm ci --only=production
+
+# Remove build dependencies to reduce image size
+RUN apk del python3 make g++
+
+# Copy built backend code
+COPY --from=backend-builder /app/backend/dist ./dist
+
+# Copy built frontend code
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
+# Create data directory and copy demo database
+RUN mkdir -p /app/data
+COPY demo/database/demo.db /app/data/demo.db
+
+# Expose the port
+EXPOSE 5001
+
+# Start the server
+CMD ["node", "dist/server.js"]

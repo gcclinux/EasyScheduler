@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   
   return {
   plugins: [react()],
-  base: mode === 'production' ? '/EasyScheduler/' : '/',
+  base: '/',
   server: {
     host: '0.0.0.0',
     port: 5173,

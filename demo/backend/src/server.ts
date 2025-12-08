@@ -142,12 +142,7 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 // Initialize database and start server
 const startServer = async () => {
   try {
-    if (DB_TYPE === 'mongodb') {
-      const { initializeMongo } = await import('./database/mongoInit');
-      await initializeMongo();
-    } else {
-      await initializeDatabase();
-    }
+    await initializeDatabase();
     
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Appointment Scheduler API Server running on http://localhost:${PORT}`);
