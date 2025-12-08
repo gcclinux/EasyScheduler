@@ -1,8 +1,6 @@
+
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.1-blue.svg" alt="Version 1.0.1">
-  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node.js">
-  <img src="https://img.shields.io/badge/react-19-61dafb.svg" alt="React 19">
+  <img src="images/copilot_banner.png" alt="EasyScheduler" style="max-width: 100%; height: auto;">
 </p>
 
 # 📅 EasyScheduler
@@ -171,6 +169,13 @@ Built with ❤️ for professionals who believe that scheduling should be simple
 [![Buy Me A Coffee](https://img.shields.io/badge/☕_Buy_Me_A_Coffee-Support-yellow?style=for-the-badge)](https://www.buymeacoffee.com/gcclinux)
 
 ---
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.1-blue.svg" alt="Version 1.0.1">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License">
+  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node.js">
+  <img src="https://img.shields.io/badge/react-19-61dafb.svg" alt="React 19">
+</p>
 
 <p align="center">
   <strong>Ready to transform how you manage appointments?</strong><br>
