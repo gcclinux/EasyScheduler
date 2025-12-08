@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { DatabaseQueries } from '../database';
 import { ApiResponse } from '../types';
 import { EmailService } from '../services/emailService';
-import { authenticateAdmin, generateToken, AuthRequest } from '../middleware/auth';
+import { authenticateAdmin, generateToken, requireWriteAccess, AuthRequest } from '../middleware/auth';
 
 const router = express.Router();
 
